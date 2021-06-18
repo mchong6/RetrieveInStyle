@@ -42,4 +42,4 @@ If you use this code or ideas from our paper, please cite our paper:
 ```
 
 ## Acknowledgments
-This code borrows heavily from [StyleGAN2 by rosalinity](https://github.com/rosinality/stylegan2-pytorch), [Editing in Style](https://github.com/IVRL/GANLocalEditing) and partly from [StyleClip](https://github.com/orpatashnik/StyleCLIP).
+This code borrows heavily from [StyleGAN2 by rosalinity](https://github.com/rosinality/stylegan2-pytorch), [Editing in Style](https://github.com/IVRL/GANLocalEditing), [encoder4editing](https://github.com/omertov/encoder4editing, and partly from [StyleClip](https://github.com/orpatashnik/StyleCLIP).
