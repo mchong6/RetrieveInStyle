@@ -8,6 +8,9 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 import math
+import scipy
+import scipy.ndimage
+
 
 # Number of style channels per StyleGAN layer
 style2list_len = [512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 
@@ -21,6 +24,7 @@ google_drive_paths = {
     "stylegan2-ffhq-config-f.pt": "https://drive.google.com/uc?id=1Yr7KuD959btpmcKGAUsbAk5rPjX2MytK",
     "inversion_stats.npz": "https://drive.google.com/uc?id=1oE_mIKf-Vr7b3J04l2UjsSrxZiw-UuFg",
     "model_ir_se50.pt": "https://drive.google.com/uc?id=1KW7bjndL3QG3sxBbZxreGHigcCCpsDgn",
+    "dlibshape_predictor_68_face_landmarks.dat": "https://drive.google.com/uc?id=1HKmjg6iXsWr4aFPuU0gBXPGR83wqMzq7"
 }
 
 
@@ -265,131 +269,112 @@ def cos_dist(a,b):
 
 def downsample(x):
     return F.interpolate(x, size=(256,256), mode='bilinear')
-def euclidean_distance(a, b):
-    x1 = a[0]; y1 = a[1]
-    x2 = b[0]; y2 = b[1]
-    
-    return math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
 
-def detectFace(img, face_detector, dilate=False):
-    faces = face_detector.detectMultiScale(img, 1.3, 5)
-    #print("found faces: ", len(faces))
+def get_landmark(filepath, predictor):
+    """get landmark with dlib
+    :return: np.array shape=(68, 2)
+    """
+    detector = dlib.get_frontal_face_detector()
 
-    if len(faces) > 0:
-        face = faces[0]
-        face_x, face_y, face_w, face_h = face
+    img = dlib.load_rgb_image(filepath)
+    dets = detector(img, 1)
 
-        if dilate:
-            scale_v = face_h / 3
-            face_y -= scale_v
-            face_h += 1.5*scale_v
+    for k, d in enumerate(dets):
+        shape = predictor(img, d)
 
-            scale_h = 1.5*scale_v 
-            face_x -= 0.5*scale_h
-            face_w += scale_h
+    t = list(shape.parts())
+    a = []
+    for tt in t:
+        a.append([tt.x, tt.y])
+    lm = np.array(a)
+    return lm
 
-        img = img[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
-        return img, img_gray
-    else:
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        return img, img_gray
-        #raise ValueError("No face found in the passed image ")
 
-def alignFace(img_path, face_detector, eye_detector):
-    img = cv2.imread(img_path)
-    img_raw = img.copy()
+def align_face(filepath, output_size=256):
+    """
+    :param filepath: str
+    :return: PIL Image
+    """
+    ensure_checkpoint_exists("dlibshape_predictor_68_face_landmarks.dat")
+    predictor = dlib.shape_predictor("dlibshape_predictor_68_face_landmarks.dat")
+    lm = get_landmark(filepath, predictor)
 
-    img, gray_img = detectFace(img, face_detector)
-    
-    eyes = eye_detector.detectMultiScale(gray_img)
-    
-    #print("found eyes: ",len(eyes))
-    
-    if len(eyes) >= 2:
-        #find the largest 2 eye
-        
-        base_eyes = eyes[:, 2]
-        #print(base_eyes)
-        
-        items = []
-        for i in range(0, len(base_eyes)):
-            item = (base_eyes[i], i)
-            items.append(item)
-        
-        df = pd.DataFrame(items, columns = ["length", "idx"]).sort_values(by=['length'], ascending=False)
-        
-        eyes = eyes[df.idx.values[0:2]]
-        
-        #--------------------
-        #decide left and right eye
-        
-        eye_1 = eyes[0]; eye_2 = eyes[1]
-        
-        if eye_1[0] < eye_2[0]:
-            left_eye = eye_1
-            right_eye = eye_2
-        else:
-            left_eye = eye_2
-            right_eye = eye_1
-        
-        #--------------------
-        #center of eyes
-        
-        left_eye_center = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
-        left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
-        
-        right_eye_center = (int(right_eye[0] + (right_eye[2]/2)), int(right_eye[1] + (right_eye[3]/2)))
-        right_eye_x = right_eye_center[0]; right_eye_y = right_eye_center[1]
-        
-        
-        #----------------------
-        #find rotation direction
-        
-        if left_eye_y > right_eye_y:
-            point_3rd = (right_eye_x, left_eye_y)
-            direction = -1 #rotate same direction to clock
-        else:
-            point_3rd = (left_eye_x, right_eye_y)
-            direction = 1 #rotate inverse direction of clock
-                
-        a = euclidean_distance(left_eye_center, point_3rd)
-        b = euclidean_distance(right_eye_center, point_3rd)
-        c = euclidean_distance(right_eye_center, left_eye_center)
-        cos_a = (b*b + c*c - a*a)/(2*b*c)
-        angle = np.arccos(cos_a)
-        
-        angle = (angle * 180) / math.pi
-        if direction == -1:
-            angle = 90 - angle
-                
-        #--------------------
-        #rotate image
-        
-        new_img = Image.fromarray(img_raw)
-        new_img = np.array(new_img.rotate(direction * angle, resample=2))
-    
-    return new_img
-    
-def align_face(filepath):
-    opencv_home = cv2.__file__
-    folders = opencv_home.split(os.path.sep)[0:-1]
+    lm_chin = lm[0: 17]  # left-right
+    lm_eyebrow_left = lm[17: 22]  # left-right
+    lm_eyebrow_right = lm[22: 27]  # left-right
+    lm_nose = lm[27: 31]  # top-down
+    lm_nostrils = lm[31: 36]  # top-down
+    lm_eye_left = lm[36: 42]  # left-clockwise
+    lm_eye_right = lm[42: 48]  # left-clockwise
+    lm_mouth_outer = lm[48: 60]  # left-clockwise
+    lm_mouth_inner = lm[60: 68]  # left-clockwise
 
-    path = folders[0]
-    for folder in folders[1:]:
-        path = path + "/" + folder
+    # Calculate auxiliary vectors.
+    eye_left = np.mean(lm_eye_left, axis=0)
+    eye_right = np.mean(lm_eye_right, axis=0)
+    eye_avg = (eye_left + eye_right) * 0.5
+    eye_to_eye = eye_right - eye_left
+    mouth_left = lm_mouth_outer[0]
+    mouth_right = lm_mouth_outer[6]
+    mouth_avg = (mouth_left + mouth_right) * 0.5
+    eye_to_mouth = mouth_avg - eye_avg
 
-    face_detector_path = path+"/data/haarcascade_frontalface_default.xml"
-    eye_detector_path = path+"/data/haarcascade_eye.xml"
+    # Choose oriented crop rectangle.
+    x = eye_to_eye - np.flipud(eye_to_mouth) * [-1, 1]
+    x /= np.hypot(*x)
+    x *= max(np.hypot(*eye_to_eye) * 2.0, np.hypot(*eye_to_mouth) * 1.8)
+    y = np.flipud(x) * [-1, 1]
+    c = eye_avg + eye_to_mouth * 0.1
+    quad = np.stack([c - x - y, c - x + y, c + x + y, c + x - y])
+    qsize = np.hypot(*x) * 2
 
-    if os.path.isfile(face_detector_path) != True:
-        raise ValueError("Confirm that opencv is installed on your environment! Expected path ",detector_path," violated.")
+    # read image
+    img = Image.open(filepath)
 
-    face_detector = cv2.CascadeClassifier(face_detector_path)
-    eye_detector = cv2.CascadeClassifier(eye_detector_path) 
+    transform_size = output_size
+    enable_padding = True
 
-    aligned_face = alignFace(filepath, face_detector, eye_detector)
-    img, gray_img = detectFace(aligned_face, face_detector, True)
-    return Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # Shrink.
+    shrink = int(np.floor(qsize / output_size * 0.5))
+    if shrink > 1:
+        rsize = (int(np.rint(float(img.size[0]) / shrink)), int(np.rint(float(img.size[1]) / shrink)))
+        img = img.resize(rsize, Image.ANTIALIAS)
+        quad /= shrink
+        qsize /= shrink
+
+    # Crop.
+    border = max(int(np.rint(qsize * 0.1)), 3)
+    crop = (int(np.floor(min(quad[:, 0]))), int(np.floor(min(quad[:, 1]))), int(np.ceil(max(quad[:, 0]))),
+            int(np.ceil(max(quad[:, 1]))))
+    crop = (max(crop[0] - border, 0), max(crop[1] - border, 0), min(crop[2] + border, img.size[0]),
+            min(crop[3] + border, img.size[1]))
+    if crop[2] - crop[0] < img.size[0] or crop[3] - crop[1] < img.size[1]:
+        img = img.crop(crop)
+        quad -= crop[0:2]
+
+    # Pad.
+    pad = (int(np.floor(min(quad[:, 0]))), int(np.floor(min(quad[:, 1]))), int(np.ceil(max(quad[:, 0]))),
+           int(np.ceil(max(quad[:, 1]))))
+    pad = (max(-pad[0] + border, 0), max(-pad[1] + border, 0), max(pad[2] - img.size[0] + border, 0),
+           max(pad[3] - img.size[1] + border, 0))
+    if enable_padding and max(pad) > border - 4:
+        pad = np.maximum(pad, int(np.rint(qsize * 0.3)))
+        img = np.pad(np.float32(img), ((pad[1], pad[3]), (pad[0], pad[2]), (0, 0)), 'reflect')
+        h, w, _ = img.shape
+        y, x, _ = np.ogrid[:h, :w, :1]
+        mask = np.maximum(1.0 - np.minimum(np.float32(x) / pad[0], np.float32(w - 1 - x) / pad[2]),
+                          1.0 - np.minimum(np.float32(y) / pad[1], np.float32(h - 1 - y) / pad[3]))
+        blur = qsize * 0.02
+        img += (scipy.ndimage.gaussian_filter(img, [blur, blur, 0]) - img) * np.clip(mask * 3.0 + 1.0, 0.0, 1.0)
+        img += (np.median(img, axis=(0, 1)) - img) * np.clip(mask, 0.0, 1.0)
+        img = Image.fromarray(np.uint8(np.clip(np.rint(img), 0, 255)), 'RGB')
+        quad += pad[:2]
+
+    # Transform.
+    img = img.transform((transform_size, transform_size), Image.QUAD, (quad + 0.5).flatten(), Image.BILINEAR)
+    if output_size < transform_size:
+        img = img.resize((output_size, output_size), Image.ANTIALIAS)
+
+    # Return aligned image.
+    return img
 
