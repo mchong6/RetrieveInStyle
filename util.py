@@ -290,7 +290,7 @@ def get_landmark(filepath, predictor):
     return lm
 
 
-def align_face(filepath, output_size=256):
+def align_face(filepath, output_size=512):
     """
     :param filepath: str
     :return: PIL Image
