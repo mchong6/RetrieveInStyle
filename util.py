@@ -25,6 +25,7 @@ google_drive_paths = {
     "inversion_stats.npz": "https://drive.google.com/uc?id=1oE_mIKf-Vr7b3J04l2UjsSrxZiw-UuFg",
     "model_ir_se50.pt": "https://drive.google.com/uc?id=1KW7bjndL3QG3sxBbZxreGHigcCCpsDgn",
     "dlibshape_predictor_68_face_landmarks.dat": "https://drive.google.com/uc?id=11BDmNKS1zxSZxkgsEvQoKgFd8J264jKp"
+    "e4e_ffhq_encode.pt": "https://drive.google.com/uc?id=1cUv_reLE6k3604or78EranS7XzuVMWeO"
 }
 
 
