@@ -66,6 +66,7 @@ def load_source(files, generator):
 
         if source.ndim == 3:
             source = generator.get_latent(source, truncation=1, is_latent=True)
+            source = list2style(source)
             
         sources.append(source)
         

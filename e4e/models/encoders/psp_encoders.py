@@ -5,8 +5,8 @@ import torch
 from torch import nn
 from torch.nn import Conv2d, BatchNorm2d, PReLU, Sequential, Module
 
-from models.encoders.helpers import get_blocks, bottleneck_IR, bottleneck_IR_SE, _upsample_add
-from models.stylegan2.model import EqualLinear
+from e4e.models.encoders.helpers import get_blocks, bottleneck_IR, bottleneck_IR_SE, _upsample_add
+from e4e.models.stylegan2.model import EqualLinear
 
 
 class ProgressiveStage(Enum):

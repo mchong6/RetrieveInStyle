@@ -21,8 +21,8 @@ def projection(img, name, generator, device='cuda'):
 
     transform = transforms.Compose(
         [
-            transforms.Resize(resize),
-            transforms.CenterCrop(resize),
+            transforms.Resize(256),
+            transforms.CenterCrop(256),
             transforms.ToTensor(),
             transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
         ]
@@ -32,6 +32,6 @@ def projection(img, name, generator, device='cuda'):
     images, w_plus = net(img, randomize_noise=False, return_latents=True)
     result_file = {}
     filename = './inversion_codes/' + name + '.pt'
-    result_file['latent'] = latent_in[0]
+    result_file['latent'] = w_plus[0]
     torch.save(result_file, filename)
 
