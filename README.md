@@ -23,23 +23,10 @@ pip install tqdm gdown scikit-learn scipy lpips dlib opencv-python
 ## How to use
 Everything to get started is in the [colab notebook](https://colab.research.google.com/github/mchong6/RetrieveInStyle/blob/main/RIS_colab.ipynb).
 
-## GAN inversion
-There are 2 ways to apply RIS to real images. We provide a code to perform GAN inversion on real images using gradient descent. This snippet is adapted from [Improving Inversion and Generation Diversity in StyleGAN using a Gaussianized Latent Space](https://arxiv.org/abs/2009.06529). To run it, inversion_stats.npz which is needed will be downloaded automatically or manually from [here](https://drive.google.com/drive/folders/1OvXPzT4SqJcZWWjsRNyU2m35AaMP6eq0?usp=sharing). Alternatively you can generate it yourself by following the instructions in the notebook.
-
-For large scale real image inversion for retrieval, an encoder-based GAN inversion is needed. In our paper we use [pixel2pixel2style](https://github.com/eladrich/pixel2style2pixel) but others like [encoder4editing](https://github.com/omertov/encoder4editing) should work too. Note that most inversion methods give you a code in the W+ space. However, RIS works in style space. To convert from W+ to style space, 
-
-```python
-w_plus =  pickle.load(open("file.pkl", "rb")).cuda() # this should have shape of [b, 18, 512]
-latent = generator.get_latent(w_plus, truncation=1, is_latent=True) # convert to style space.
-latent = style2list(latent) # the generator expects a list format
-im, _ = generator(latent)
-```
-This step is not needed if you use our projection code.
-
 ## Citation
 If you use this code or ideas from our paper, please cite our paper:
 ```
 ```
 
 ## Acknowledgments
-This code borrows from [StyleGAN2 by rosalinity](https://github.com/rosinality/stylegan2-pytorch), [Editing in Style](https://github.com/IVRL/GANLocalEditing), [StyleClip](https://github.com/orpatashnik/StyleCLIP), [PTI](https://github.com/danielroich/PTI), [encoder4editing](https://github.com/omertov/encoder4editing).
+This code borrows from [StyleGAN2 by rosalinity](https://github.com/rosinality/stylegan2-pytorch), [Editing in Style](https://github.com/IVRL/GANLocalEditing), [StyleClip](https://github.com/orpatashnik/StyleCLIP), [PTI](https://github.com/danielroich/PTI). Encoder used is borrowed directly from [encoder4editing](https://github.com/omertov/encoder4editing).
