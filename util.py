@@ -55,11 +55,11 @@ def ensure_checkpoint_exists(model_weights_filename):
 
 # given a list of filenames, load the inverted style code
 @torch.no_grad()
-def load_source(files, generator):
+def load_source(files, generator, device='cuda'):
     sources = []
     
     for file in files:
-        source = torch.load(f'./inversion_codes/{file}.pt')['latent']
+        source = torch.load(f'./inversion_codes/{file}.pt')['latent'].to(device)
 
         if source.size(0) != 1:
             source = source.unsqueeze(0)
