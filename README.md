@@ -26,6 +26,13 @@ Everything to get started is in the [colab notebook](https://colab.research.goog
 ## Citation
 If you use this code or ideas from our paper, please cite our paper:
 ```
+@article{chong2021retrieve,
+  title={Retrieve in Style: Unsupervised Facial Feature Transfer and Retrieval},
+  author={Chong, Min Jin and Chu, Wen-Sheng and Kumar, Abhishek},
+  journal={arXiv preprint arXiv:2107.06256},
+  year={2021}
+}
+{"mode":"full","isActive":false}
 ```
 
 ## Acknowledgments
