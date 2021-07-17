@@ -17,7 +17,7 @@ def projection(img, name, generator, device='cuda'):
     opts = ckpt['opts']
     opts['checkpoint_path'] = model_path
     opts= Namespace(**opts)
-    net = pSp(opts).eval().to(device)
+    net = pSp(opts, device).eval().to(device)
 
     transform = transforms.Compose(
         [

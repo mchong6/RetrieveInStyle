@@ -17,9 +17,10 @@ def get_keys(d, name):
 
 class pSp(nn.Module):
 
-    def __init__(self, opts):
+    def __init__(self, opts, device):
         super(pSp, self).__init__()
         self.opts = opts
+        self.device = device
         # Define architecture
         self.encoder = self.set_encoder()
         self.decoder = Generator(opts.stylegan_size, 512, 8, channel_multiplier=2)
@@ -91,7 +92,7 @@ class pSp(nn.Module):
 
     def __load_latent_avg(self, ckpt, repeat=None):
         if 'latent_avg' in ckpt:
-            self.latent_avg = ckpt['latent_avg'].to(self.opts.device)
+            self.latent_avg = ckpt['latent_avg'].to(self.device)
             if repeat is not None:
                 self.latent_avg = self.latent_avg.repeat(repeat, 1)
         else:
