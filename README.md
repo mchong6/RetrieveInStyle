@@ -32,7 +32,8 @@ If you use this code or ideas from our paper, please cite our paper:
   journal={ArXiv},
   year={2021},
   volume={abs/2107.06256}
-}```
+}
+```
 
 ## Acknowledgments
 This code borrows from [StyleGAN2 by rosalinity](https://github.com/rosinality/stylegan2-pytorch), [Editing in Style](https://github.com/IVRL/GANLocalEditing), [StyleClip](https://github.com/orpatashnik/StyleCLIP), [PTI](https://github.com/danielroich/PTI). Encoder used is borrowed directly from [encoder4editing](https://github.com/omertov/encoder4editing).
