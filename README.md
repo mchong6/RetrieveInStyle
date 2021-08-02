@@ -32,7 +32,6 @@ If you use this code or ideas from our paper, please cite our paper:
   journal={arXiv preprint arXiv:2107.06256},
   year={2021}
 }
-{"mode":"full","isActive":false}
 ```
 
 ## Acknowledgments
