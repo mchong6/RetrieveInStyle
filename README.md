@@ -1,7 +1,7 @@
 # Retrieve in Style: Unsupervised Facial Feature Transfer and Retrieval PyTorch
 ![](ris_teaser.png)
 
-This is the PyTorch implementation of [Retrieve in Style: Unsupervised Facial Feature Transfer and Retrieval](). [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mchong6/RetrieveInStyle/blob/main/RIS_colab.ipynb)
+This is the PyTorch implementation of [Retrieve in Style: Unsupervised Facial Feature Transfer and Retrieval](https://arxiv.org/abs/2107.06256). [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mchong6/RetrieveInStyle/blob/main/RIS_colab.ipynb)
 
 
 >**Abstract:**<br>
@@ -26,13 +26,13 @@ Everything to get started is in the [colab notebook](https://colab.research.goog
 ## Citation
 If you use this code or ideas from our paper, please cite our paper:
 ```
-@article{chong2021retrieve,
+@article{Chong2021RetrieveIS,
   title={Retrieve in Style: Unsupervised Facial Feature Transfer and Retrieval},
-  author={Chong, Min Jin and Chu, Wen-Sheng and Kumar, Abhishek},
-  journal={arXiv preprint arXiv:2107.06256},
-  year={2021}
-}
-```
+  author={Min Jin Chong and Wen-Sheng Chu and Abhishek Kumar and David Forsyth},
+  journal={ArXiv},
+  year={2021},
+  volume={abs/2107.06256}
+}```
 
 ## Acknowledgments
 This code borrows from [StyleGAN2 by rosalinity](https://github.com/rosinality/stylegan2-pytorch), [Editing in Style](https://github.com/IVRL/GANLocalEditing), [StyleClip](https://github.com/orpatashnik/StyleCLIP), [PTI](https://github.com/danielroich/PTI). Encoder used is borrowed directly from [encoder4editing](https://github.com/omertov/encoder4editing).
