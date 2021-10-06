@@ -1,4 +1,5 @@
 # Retrieve in Style: Unsupervised Facial Feature Transfer and Retrieval PyTorch
+![](teaser.gif)
 ![](ris_teaser.png)
 
 This is the PyTorch implementation of [Retrieve in Style: Unsupervised Facial Feature Transfer and Retrieval](https://arxiv.org/abs/2107.06256). [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mchong6/RetrieveInStyle/blob/main/RIS_colab.ipynb)
